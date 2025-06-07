@@ -4,7 +4,7 @@ from nltk.stem import PorterStemmer
 from data import data # Assuming your data is in 'data.py'
 import wikipedia
 
-# Ensure punkt is downloaded. `punkt_tab` is often not strictly needed for basic word_tokenize
+
 try:
     nltk.data.find("tokenizers/punkt")
 except nltk.downloader.DownloadError:
@@ -19,7 +19,7 @@ INTENT_RESPONSE_MAP = {
     "small_talk": "small_talk_responses"
 }
 
-# Add a list of common "stop words" that are usually irrelevant for search queries
+
 STOP_WORDS = set([
     'what', 'is', 'the', 'of', 'a', 'an', 'are', 'do', 'does', 'did', 'who', 'where',
     'when', 'why', 'how', 'tell', 'me', 'about', 'can', 'you', 'give', 'information',
@@ -37,13 +37,10 @@ def clean_for_wikipedia_query(user_input):
     Removes common question words and stop words.
     """
     tokens = nltk.word_tokenize(user_input.lower())
-    # Filter out stop words and keep only alphanumeric tokens.
-    # IMPORTANT: We are NOT stemming here, as Wikipedia's search is good with full words.
     filtered_tokens = [
         token for token in tokens
         if token not in STOP_WORDS and token.isalnum()
     ]
-    # Join them back into a string for Wikipedia
     return ' '.join(filtered_tokens)
 
 def get_wikipedia_summary(query):
@@ -53,7 +50,7 @@ def get_wikipedia_summary(query):
     Includes DEBUG prints for better tracing.
     """
     try:
-        # Try to get a direct summary
+        
         summary = wikipedia.summary(query, sentences=2, auto_suggest=True)
         return summary
     except wikipedia.exceptions.DisambiguationError as e:
@@ -76,20 +73,16 @@ def get_response(user_input):
     processed_input = preprocess(user_input)
     print(f"DEBUG: Processed User Input (for intent matching): {processed_input}")
 
-    # 1. Check for specific predefined intents (greetings, farewells, small talk)
+    
     for intent_category, response_category in INTENT_RESPONSE_MAP.items():
         for pattern in data[intent_category]:
             processed_pattern = preprocess(pattern)
-            # Check if all words in the *pattern* are present in the *user input*
-            # This is a basic keyword match for predefined intents.
             if all(word in processed_input for word in processed_pattern):
                 print(f"DEBUG: Matched Intent: {intent_category} with pattern: '{pattern}'") # DEBUG print
                 return random.choice(data[response_category])
 
-    # 2. If no specific intent is matched, assume it's a general query for Wikipedia
     wiki_query = clean_for_wikipedia_query(user_input)
 
-    # *** THIS IS THE CRITICAL DEBUG PRINT ***
     print(f"DEBUG: Cleaned Wikipedia Query: '{wiki_query}' (Original: '{user_input}')")
 
     if len(wiki_query) > 2: # Ensure the cleaned query is not too short
@@ -103,7 +96,6 @@ def get_response(user_input):
         print(f"DEBUG: Wikipedia query too short or empty after cleaning: '{wiki_query}'") # DEBUG print
 
 
-    # 3. Fallback if nothing else matches (e.g., very short or unhandled input after cleaning)
     return "I am not sure how to respond to that. Could you rephrase?"
 
 def chat():
