@@ -32,10 +32,6 @@ def preprocess(sentence):
     return [stemmer.stem(token) for token in tokens]
 
 def clean_for_wikipedia_query(user_input):
-    """
-    Cleans the user input to create a more effective Wikipedia query.
-    Removes common question words and stop words.
-    """
     tokens = nltk.word_tokenize(user_input.lower())
     filtered_tokens = [
         token for token in tokens
@@ -44,11 +40,7 @@ def clean_for_wikipedia_query(user_input):
     return ' '.join(filtered_tokens)
 
 def get_wikipedia_summary(query):
-    """
-    Fetches a summary from Wikipedia for the given query.
-    Handles potential disambiguation and page not found errors.
-    Includes DEBUG prints for better tracing.
-    """
+    
     try:
         
         summary = wikipedia.summary(query, sentences=2, auto_suggest=True)
@@ -65,11 +57,7 @@ def get_wikipedia_summary(query):
         return f"An error occurred while trying to access Wikipedia: {e}"
 
 def get_response(user_input):
-    """
-    Determines the appropriate response based on user input,
-    prioritizing specific intents, then Wikipedia for general questions.
-    Includes DEBUG prints for tracing.
-    """
+    
     processed_input = preprocess(user_input)
     print(f"DEBUG: Processed User Input (for intent matching): {processed_input}")
 
@@ -93,7 +81,7 @@ def get_response(user_input):
         else:
             return "I couldn't find information on that. Can you rephrase or ask something else?"
     else:
-        print(f"DEBUG: Wikipedia query too short or empty after cleaning: '{wiki_query}'") # DEBUG print
+        print(f"DEBUG: Wikipedia query too short or empty after cleaning: '{wiki_query}'")  
 
 
     return "I am not sure how to respond to that. Could you rephrase?"
